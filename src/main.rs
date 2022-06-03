@@ -2,14 +2,7 @@ use std::collections::HashMap;
 use std::mem;
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
-
-fn frequency_in_string(input: String) -> HashMap<char, usize> {
-    let mut map = HashMap::<char, usize>::new();
-    for c in input.chars().filter(|c| c.is_alphabetic()) {
-        *map.entry(c.to_ascii_lowercase()).or_default() += 1;
-    }
-    map
-}
+use wasmworkers::frequency_in_string;
 
 fn frequency_single_threaded(input: &[&str]) -> HashMap<char, usize> {
     let mut map = HashMap::new();
@@ -98,17 +91,29 @@ fn main() {
 
     let sys_time = std::time::SystemTime::now();
     let _map = frequency_single_threaded(data);
-    println!("elapsed: {} micros", sys_time.elapsed().unwrap().as_micros());
+    println!(
+        "elapsed: {} micros",
+        sys_time.elapsed().unwrap().as_micros()
+    );
 
     let sys_time = std::time::SystemTime::now();
     let _map = frequency_multithreaded(data, worker_count);
-    println!("elapsed: {} micros", sys_time.elapsed().unwrap().as_micros());
+    println!(
+        "elapsed: {} micros",
+        sys_time.elapsed().unwrap().as_micros()
+    );
 
     let sys_time = std::time::SystemTime::now();
     let _map = frequency_channels(data, worker_count);
-    println!("elapsed: {} micros", sys_time.elapsed().unwrap().as_micros());
+    println!(
+        "elapsed: {} micros",
+        sys_time.elapsed().unwrap().as_micros()
+    );
 
     let sys_time = std::time::SystemTime::now();
     let _map = frequency_mutex(data, worker_count);
-    println!("elapsed: {} micros", sys_time.elapsed().unwrap().as_micros());
+    println!(
+        "elapsed: {} micros",
+        sys_time.elapsed().unwrap().as_micros()
+    );
 }
