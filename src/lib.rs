@@ -1,6 +1,6 @@
+use futures_channel::oneshot;
 use js_sys::Promise;
 use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
 
 use std::collections::HashMap;
 
@@ -10,8 +10,10 @@ macro_rules! console_log {
 
 mod pool;
 
-pub fn frequency_in_string(input: String) -> HashMap<char, usize> {
-    let mut map = HashMap::<char, usize>::new();
+pub type CharMap = HashMap<char, usize>;
+
+pub fn frequency_in_string(input: String) -> CharMap {
+    let mut map = CharMap::new();
     for c in input.chars().filter(|c| c.is_alphabetic()) {
         *map.entry(c.to_ascii_lowercase()).or_default() += 1;
     }
@@ -39,6 +41,8 @@ impl Text {
     }
 
     pub fn process(self, concurrency: usize, pool: &pool::WorkerPool) {
+        let mut map = CharMap::new();
+
         let thread_pool = rayon::ThreadPoolBuilder::new()
             .num_threads(concurrency)
             .spawn_handler(|thread| Ok(pool.run(|| thread.run()).unwrap()))
@@ -46,7 +50,7 @@ impl Text {
             .unwrap();
 
         let (tx, rx) = oneshot::channel();
-        pool.run(move || thread_pool.install(|| todo!()));
+        pool.run(move || thread_pool.install(|| {}));
         drop(tx.send(todo!()));
         todo!();
     }

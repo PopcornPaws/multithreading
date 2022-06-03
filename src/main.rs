@@ -1,11 +1,10 @@
-use std::collections::HashMap;
 use std::mem;
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
-use wasmworkers::frequency_in_string;
+use wasmworkers::{frequency_in_string, CharMap};
 
-fn frequency_single_threaded(input: &[&str]) -> HashMap<char, usize> {
-    let mut map = HashMap::new();
+fn frequency_single_threaded(input: &[&str]) -> CharMap {
+    let mut map = CharMap::new();
     for line in input {
         for c in line.chars().filter(|c| c.is_alphabetic()) {
             *map.entry(c.to_ascii_lowercase()).or_default() += 1;
@@ -15,8 +14,8 @@ fn frequency_single_threaded(input: &[&str]) -> HashMap<char, usize> {
     map
 }
 
-fn frequency_multithreaded(input: &[&str], worker_count: usize) -> HashMap<char, usize> {
-    let mut result = HashMap::<char, usize>::new();
+fn frequency_multithreaded(input: &[&str], worker_count: usize) -> CharMap {
+    let mut result = CharMap::new();
     let chunks = input.chunks((input.len() / worker_count).max(1));
     let mut handles = Vec::new();
 
@@ -36,8 +35,8 @@ fn frequency_multithreaded(input: &[&str], worker_count: usize) -> HashMap<char,
     result
 }
 
-fn frequency_channels(input: &[&str], worker_count: usize) -> HashMap<char, usize> {
-    let mut result = HashMap::<char, usize>::new();
+fn frequency_channels(input: &[&str], worker_count: usize) -> CharMap {
+    let mut result = CharMap::new();
     let chunks = input.chunks((input.len() / worker_count).max(1));
     let (sender, receiver) = mpsc::channel();
     for chunk in chunks {
@@ -58,8 +57,8 @@ fn frequency_channels(input: &[&str], worker_count: usize) -> HashMap<char, usiz
     result
 }
 
-fn frequency_mutex(input: &[&str], worker_count: usize) -> HashMap<char, usize> {
-    let result = Arc::new(Mutex::new(HashMap::<char, usize>::new()));
+fn frequency_mutex(input: &[&str], worker_count: usize) -> CharMap {
+    let result = Arc::new(Mutex::new(CharMap::new()));
     let chunks = input.chunks((input.len() / worker_count).max(1));
     let mut handles = Vec::new();
 
