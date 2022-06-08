@@ -1,5 +1,7 @@
 use futures_channel::oneshot;
 use js_sys::Promise;
+use rayon::iter::ParallelIterator;
+use rayon::prelude::ParallelSlice;
 use wasm_bindgen::prelude::*;
 
 use std::collections::HashMap;
@@ -40,7 +42,12 @@ impl Text {
         Self { inner }
     }
 
-    pub fn process(self, concurrency: usize, input: String, pool: &pool::WorkerPool) -> Result<ProcessedText, JsValue> {
+    pub fn process(
+        self,
+        concurrency: usize,
+        input: String,
+        pool: &pool::WorkerPool,
+    ) -> Result<ProcessedText, JsValue> {
         let mut map = CharMap::new();
         let n_chunks = (input.len() / concurrency).max(1);
 
@@ -53,13 +60,11 @@ impl Text {
         let (tx, rx) = oneshot::channel();
         pool.run(move || {
             thread_pool.install(|| {
-                input.chars().par_chunks(n_chunks)
-                    .for_each(|chunk| {
-                        let string = chunk.join("");
-                        for c in input.chars().filter(|c| c.is_alphabetic()) {
-                            *map.entry(c.to_ascii_lowercase()).or_default() += 1;
-                        }
-                    })
+                input.as_bytes().par_chunks(n_chunks).for_each(|chunk| {
+                    for c in chunk.into_iter().filter(|&&c| (c as char).is_alphabetic()) {
+                        *map.entry((*c as char).to_ascii_lowercase()).or_default() += 1;
+                    }
+                })
             });
             drop(tx.send(map));
         })?;
