@@ -6,6 +6,7 @@ const concurrencyAmt = document.getElementById('concurrency-amt');
 const timing = document.getElementById('timing');
 const timingVal = document.getElementById('timing-val');
 const ctx = canvas.getContext('2d');
+//import { wasm_bindgen } from "./multi-wasm";
 
 button.disabled = true;
 concurrency.disabled = true;
@@ -26,14 +27,14 @@ function loadWasm() {
     return
   }
 
-  wasm_bindgen('./raytrace_parallel_bg.wasm')
+  wasm_bindgen('./multi-wasm/wasmworkers_bg.wasm')
     .then(run)
     .catch(console.error);
 }
 
 loadWasm();
 
-const { Scene, WorkerPool } = wasm_bindgen;
+const { Text, WorkerPool } = wasm_bindgen;
 
 function run() {
   // The maximal concurrency of our web worker pool is `hardwareConcurrency`,
@@ -45,16 +46,16 @@ function run() {
   button.onclick = function() {
     button.disabled = true;
     console.time('render');
-    let json;
-    try {
-      json = JSON.parse(scene.value);
-    } catch(e) {
-      alert(`invalid json: ${e}`);
-      return
-    }
-    canvas.width = json.width;
-    canvas.height = json.height;
-    render(new Scene(json));
+    //let json;
+    //try {
+    //  json = JSON.parse(scene.value);
+    //} catch(e) {
+    //  alert(`invalid json: ${e}`);
+    //  return
+    //}
+    //canvas.width = json.width;
+    //canvas.height = json.height;
+    render(scene.value);
   };
   button.innerText = 'Render!';
   button.disabled = false;
@@ -98,13 +99,13 @@ class State {
     timingVal.innerText = `${dur}ms`;
     this.counter += 1;
 
-    if (updateImage && this.wasm && this.counter % 3 == 0)
-      this.updateImage(this.wasm.imageSoFar());
+    //if (updateImage && this.wasm && this.counter % 3 == 0)
+    //  this.updateImage(this.wasm.imageSoFar());
   }
 
-  updateImage(data) {
-    ctx.putImageData(data, 0, 0);
-  }
+  //updateImage(data) {
+  //  ctx.putImageData(data, 0, 0);
+  //}
 
   stop() {
     if (!this.running)

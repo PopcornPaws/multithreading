@@ -21,3 +21,5 @@ wasm-bindgen \
   target/wasm32-unknown-unknown/release/wasmworkers.wasm \
   --out-dir multi-wasm \
   --target no-modules
+
+python server.py
