@@ -1,7 +1,6 @@
 use futures_channel::oneshot;
 use js_sys::Promise;
-use rayon::iter::ParallelIterator;
-use rayon::prelude::ParallelSlice;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use wasm_bindgen::prelude::*;
 
 use std::collections::HashMap;
@@ -30,6 +29,7 @@ extern "C" {
     fn logv(x: &JsValue);
 }
 
+#[allow(dead_code)]
 #[wasm_bindgen]
 pub struct Text {
     inner: String,
@@ -47,9 +47,13 @@ impl Text {
         concurrency: usize,
         input: String,
         pool: &pool::WorkerPool,
-    ) -> Result<ProcessedText, JsValue> {
-        let mut map = CharMap::new();
+    ) -> Result<Promise, JsValue> {
         let n_chunks = (input.len() / concurrency).max(1);
+        let chunkies = input
+            .as_bytes()
+            .chunks(n_chunks)
+            .flat_map(|chunk| String::from_utf8(chunk.to_vec()))
+            .collect::<Vec<String>>();
 
         let thread_pool = rayon::ThreadPoolBuilder::new()
             .num_threads(concurrency)
@@ -60,29 +64,33 @@ impl Text {
         let (tx, rx) = oneshot::channel();
         pool.run(move || {
             thread_pool.install(|| {
-                input.as_bytes().par_chunks(n_chunks).for_each(|chunk| {
-                    for c in chunk.into_iter().filter(|&&c| (c as char).is_alphabetic()) {
-                        *map.entry((*c as char).to_ascii_lowercase()).or_default() += 1;
-                    }
-                })
+                let map: CharMap = chunkies
+                    .par_iter()
+                    .fold(CharMap::new, |mut acc, chunk| {
+                        for c in chunk.chars() {
+                            *acc.entry(c).or_default() += 1;
+                        }
+                        acc
+                    })
+                    .reduce_with(|mut m1, m2| {
+                        for (k, v) in m2 {
+                            *m1.entry(k).or_default() += v;
+                        }
+                        m1
+                    })
+                    .unwrap();
+                drop(tx.send(map));
             });
-            drop(tx.send(map));
         })?;
 
+        // todo turn this into a future/promise
         let done = async move {
             match rx.await {
-                Ok(data) => Ok(data.into()),
+                Ok(map) => JsValue::from_serde(&map).map_err(|e| e.to_string().into()),
                 Err(_) => Err(JsValue::undefined()),
             }
         };
 
-        Ok(ProcessedText {
-            promise: wasm_bindgen_futures::future_to_promise(done),
-        })
+        Ok(wasm_bindgen_futures::future_to_promise(done))
     }
-}
-
-#[wasm_bindgen]
-pub struct ProcessedText {
-    promise: Promise,
 }

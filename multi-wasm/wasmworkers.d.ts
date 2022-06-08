@@ -9,11 +9,6 @@ declare namespace wasm_bindgen {
 	export function child_entry_point(ptr: number): void;
 	/**
 	*/
-	export class ProcessedText {
-	  free(): void;
-	}
-	/**
-	*/
 	export class Text {
 	  free(): void;
 	/**
@@ -22,9 +17,11 @@ declare namespace wasm_bindgen {
 	  constructor(inner: string);
 	/**
 	* @param {number} concurrency
+	* @param {string} input
 	* @param {WorkerPool} pool
+	* @returns {Promise<any>}
 	*/
-	  process(concurrency: number, pool: WorkerPool): void;
+	  process(concurrency: number, input: string, pool: WorkerPool): Promise<any>;
 	}
 	/**
 	*/
@@ -56,15 +53,16 @@ declare interface InitOutput {
   readonly child_entry_point: (a: number, b: number) => void;
   readonly __wbg_text_free: (a: number) => void;
   readonly text_new: (a: number, b: number) => number;
-  readonly text_process: (a: number, b: number, c: number) => void;
-  readonly __wbg_processedtext_free: (a: number) => void;
+  readonly text_process: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
   readonly memory: WebAssembly.Memory;
-  readonly __wbindgen_export_1: WebAssembly.Table;
-  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__hd10d2c808106edf4: (a: number, b: number, c: number) => void;
-  readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
+  readonly __wbindgen_export_3: WebAssembly.Table;
+  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__he4fe4797b3fcbeb0: (a: number, b: number, c: number) => void;
+  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h1f4ee2908696676b: (a: number, b: number, c: number) => void;
+  readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_exn_store: (a: number) => void;
+  readonly wasm_bindgen__convert__closures__invoke2_mut__h63e8bb1af0e32b7e: (a: number, b: number, c: number, d: number) => void;
   readonly __wbindgen_thread_destroy: () => void;
   readonly __wbindgen_start: () => void;
 }
