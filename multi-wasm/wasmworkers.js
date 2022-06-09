@@ -282,18 +282,15 @@ class Text {
     }
     /**
     * @param {number} concurrency
-    * @param {string} input
     * @param {WorkerPool} pool
     * @returns {Promise<any>}
     */
-    process(concurrency, input, pool) {
+    process(concurrency, pool) {
         try {
             const ptr = this.__destroy_into_raw();
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            const ptr0 = passStringToWasm0(input, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            const len0 = WASM_VECTOR_LEN;
             _assertClass(pool, WorkerPool);
-            wasm.text_process(retptr, ptr, concurrency, ptr0, len0, pool.ptr);
+            wasm.text_process(retptr, ptr, concurrency, pool.ptr);
             var r0 = getInt32Memory0()[retptr / 4 + 0];
             var r1 = getInt32Memory0()[retptr / 4 + 1];
             var r2 = getInt32Memory0()[retptr / 4 + 2];

@@ -17,11 +17,10 @@ declare namespace wasm_bindgen {
 	  constructor(inner: string);
 	/**
 	* @param {number} concurrency
-	* @param {string} input
 	* @param {WorkerPool} pool
 	* @returns {Promise<any>}
 	*/
-	  process(concurrency: number, input: string, pool: WorkerPool): Promise<any>;
+	  process(concurrency: number, pool: WorkerPool): Promise<any>;
 	}
 	/**
 	*/
@@ -53,7 +52,7 @@ declare interface InitOutput {
   readonly child_entry_point: (a: number, b: number) => void;
   readonly __wbg_text_free: (a: number) => void;
   readonly text_new: (a: number, b: number) => number;
-  readonly text_process: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+  readonly text_process: (a: number, b: number, c: number, d: number) => void;
   readonly memory: WebAssembly.Memory;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;

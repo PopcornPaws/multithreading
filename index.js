@@ -1,12 +1,11 @@
 const button = document.getElementById('render');
 const canvas = document.getElementById('canvas');
-const scene = document.getElementById('scene');
+const text = document.getElementById('text');
 const concurrency = document.getElementById('concurrency');
 const concurrencyAmt = document.getElementById('concurrency-amt');
 const timing = document.getElementById('timing');
 const timingVal = document.getElementById('timing-val');
 const ctx = canvas.getContext('2d');
-//import { wasm_bindgen } from "./multi-wasm";
 
 button.disabled = true;
 concurrency.disabled = true;
@@ -46,16 +45,8 @@ function run() {
   button.onclick = function() {
     button.disabled = true;
     console.time('render');
-    //let json;
-    //try {
-    //  json = JSON.parse(scene.value);
-    //} catch(e) {
-    //  alert(`invalid json: ${e}`);
-    //  return
-    //}
-    //canvas.width = json.width;
-    //canvas.height = json.height;
-    render(scene.value);
+    console.log("KURVA");
+    process(text.value);
   };
   button.innerText = 'Render!';
   button.disabled = false;
@@ -85,10 +76,10 @@ class State {
 
     this.interval = setInterval(() => this.updateTimer(true), 100);
 
-    wasm.promise()
+    wasm
       .then(data => {
         this.updateTimer(false);
-        this.updateImage(data);
+        console.log(data);
         this.stop();
       })
       .catch(console.error);
@@ -118,10 +109,11 @@ class State {
   }
 }
 
-function render(scene) {
+function process(text) {
   if (rendering) {
     rendering.stop();
     rendering = null;
   }
-  rendering = new State(scene.render(parseInt(concurrency.value), pool));
+  let txt = new Text(text);
+  rendering = new State(txt.process(parseInt(concurrency.value), pool));
 }

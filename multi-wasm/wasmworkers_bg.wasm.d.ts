@@ -5,7 +5,7 @@ export function workerpool_new(a: number, b: number): void;
 export function child_entry_point(a: number, b: number): void;
 export function __wbg_text_free(a: number): void;
 export function text_new(a: number, b: number): number;
-export function text_process(a: number, b: number, c: number, d: number, e: number, f: number): void;
+export function text_process(a: number, b: number, c: number, d: number): void;
 export const memory: WebAssembly.Memory;
 export function __wbindgen_malloc(a: number): number;
 export function __wbindgen_realloc(a: number, b: number, c: number): number;

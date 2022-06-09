@@ -45,11 +45,10 @@ impl Text {
     pub fn process(
         self,
         concurrency: usize,
-        input: String,
         pool: &pool::WorkerPool,
     ) -> Result<Promise, JsValue> {
-        let n_chunks = (input.len() / concurrency).max(1);
-        let chunkies = input
+        let n_chunks = (self.inner.len() / concurrency).max(1);
+        let chunkies = self.inner
             .as_bytes()
             .chunks(n_chunks)
             .flat_map(|chunk| String::from_utf8(chunk.to_vec()))
