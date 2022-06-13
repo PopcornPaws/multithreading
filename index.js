@@ -45,7 +45,6 @@ function run() {
   button.onclick = function() {
     button.disabled = true;
     console.time('render');
-    console.log("KURVA");
     process(text.value);
   };
   button.innerText = 'Render!';
